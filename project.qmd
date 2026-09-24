@@ -1,0 +1,436 @@
+---
+title: "The Relationship Between Secondary Education and Nobel Laureates Across Countries"
+author: "Marlon Trejo"
+date: today
+date-format: long
+abstract: "We consider whether a country's percentage of the population with at least some secondary schooling has any association on the number of nobel laureates that country's had. The regression line shows a slight upward trend, indicating that, on average, there is a positive correlation. Given the p-value, we can say we have enough evidence at the 5% significance level that there is a linear association between these two variables."
+format: pdf
+number-sections: true
+bibliography: references.bib
+
+
+references:
+  - id: cdc2026
+    type: webpage
+    author:
+      - literal: Centers for Disease Control and Prevention
+    title: "Fatal Injury Reports, National and Regional, 2024"
+    container-title: "WISQARS"
+    issued:
+      - year: 2026
+    URL: "https://wisqars.cdc.gov/"
+
+  - id: R_language
+    type: software
+    author:
+      - literal: R Core Team
+    title: "R: A Language and Environment for Statistical Computing"
+    publisher: "R Foundation for Statistical Computing"
+    publisher-place: "Vienna, Austria"
+    URL: "https://www.R-project.org/"
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+data <- data.frame(
+  countries = c(
+    "United States",
+    "United Kingdom",
+    "Germany",
+    "France",
+    "Sweden",
+    "Japan",
+    "Russia/USSR",
+    "Canada",
+    "Switzerland",
+    "Austria",
+    "Netherlands",
+    "Italy",
+    "Poland",
+    "Hungary",
+    "Australia",
+    "Israel",
+    "Denmark",
+    "Norway",
+    "India",
+    "Belgium",
+    "Ireland",
+    "South Africa",
+    "China",
+    "Spain",
+    "Belarus",
+    "Czechia",
+    "Ukraine",
+    "Argentina",
+    "Finland",
+    "Egypt",
+    "Romania",
+    "Taiwan",
+    "Lithuania",
+    "Mexico",
+    "New Zealand",
+    "South Korea",
+    "Tunisia",
+    "Turkey",
+    "Algeria",
+    "Azerbaijan",
+    "Chile",
+    "Colombia",
+    "Cyprus",
+    "East Timor",
+    "Iran",
+    "Greece",
+    "Guatemala",
+    "Liberia",
+    "Luxembourg",
+    "Pakistan",
+    "Portugal",
+    "Saint Lucia",
+    "Venezuela",
+    "Bangladesh",
+    "Brazil",
+    "Bulgaria",
+    "Costa Rica",
+    "Democratic Republic of the Congo",
+    "Ethiopia",
+    "Faroe Islands",
+    "Ghana",
+    "Hong Kong",
+    "Iceland",
+    "Iraq",
+    "Jordan",
+    "Kenya",
+    "Latvia",
+    "Lebanon",
+    "North Macedonia",
+    "Morocco",
+    "Myanmar",
+    "Nigeria",
+    "Palestine",
+    "Peru",
+    "Philippines",
+    "Saudi Arabia",
+    "Tanzania",
+    "Tibet",
+    "Trinidad and Tobago",
+    "Vietnam",
+    "Yemen",
+    "Yugoslavia",
+    "Zimbabwe"
+  ), 
+  secondary_education = c(
+    95.3,  # United States
+    82.9,  # United Kingdom
+    96.7,  # Germany
+    82.5,  # France
+    88.0,  # Sweden
+    91.8,  # Japan
+    94.6,  # Russia/USSR
+    100.0, # Canada
+    96.7,  # Switzerland
+    98.9,  # Austria
+    88.2,  # Netherlands
+    82.3,  # Italy
+    83.9,  # Poland
+    96.6,  # Hungary
+    91.5,  # Australia
+    88.8,  # Israel
+    89.5,  # Denmark
+    95.3,  # Norway
+    48.7,  # India
+    82.3,  # Belgium
+    85.5,  # Ireland
+    74.9,  # South Africa
+    75.0,  # China
+    73.7,  # Spain
+    89.3,  # Belarus
+    99.8,  # Czechia
+    95.1,  # Ukraine
+    62.4,  # Argentina
+    100.0, # Finland
+    61.4,  # Egypt
+    89.1,  # Romania
+    NA,    # Taiwan
+    93.1,  # Lithuania
+    57.4,  # Mexico
+    98.7,  # New Zealand
+    91.4,  # South Korea
+    43.9,  # Tunisia
+    54.0,  # Turkey
+    34.9,  # Algeria
+    95.6,  # Azerbaijan
+    76.5,  # Chile
+    54.9,  # Colombia
+    79.0,  # Cyprus
+    NA,    # East Timor / Timor-Leste
+    67.7,  # Iran
+    67.5,  # Greece
+    36.8,  # Guatemala
+    28.3,  # Liberia
+    100.0, # Luxembourg
+    35.4,  # Pakistan
+    51.4,  # Portugal
+    45.2,  # Saint Lucia
+    68.9,  # Venezuela
+    43.1,  # Bangladesh
+    57.5,  # Brazil
+    94.2,  # Bulgaria
+    54.2,  # Costa Rica
+    24.6,  # Democratic Republic of the Congo
+    15.8,  # Ethiopia
+    NA,    # Faroe Islands
+    59.8,  # Ghana
+    77.4,  # Hong Kong
+    98.6,  # Iceland
+    45.6,  # Iraq
+    81.3,  # Jordan
+    32.0,  # Kenya
+    99.1,  # Latvia
+    54.2,  # Lebanon
+    47.8,  # North Macedonia
+    29.4,  # Morocco
+    23.8,  # Myanmar
+    NA,    # Nigeria
+    58.8,  # Palestine
+    61.5,  # Peru
+    71.6,  # Philippines
+    66.5,  # Saudi Arabia
+    12.6,  # Tanzania
+    NA,    # Tibet
+    69.8,  # Trinidad and Tobago
+    71.7,  # Vietnam
+    24.4,  # Yemen
+    NA,    # Yugoslavia
+    57.7   # Zimbabwe
+  
+  ),
+  nobel_prizes = c(
+  428,  # United States
+  145,  # United Kingdom
+  116,  # Germany
+  79,   # France
+  34,   # Sweden
+  33,   # Japan
+  30,   # Russia/USSR
+  29,   # Canada
+  27,   # Switzerland
+  25,   # Austria
+  22,   # Netherlands
+  21,   # Italy
+  19,   # Poland
+  16,   # Hungary
+  15,   # Australia
+  14,   # Israel
+  14,   # Denmark
+  14,   # Norway
+  13,   # India
+  11,   # Belgium
+  11,   # Ireland
+  11,   # South Africa
+  8,    # China
+  8,    # Spain
+  6,    # Belarus
+  6,    # Czechia
+  6,    # Ukraine
+  5,    # Argentina
+  5,    # Finland
+  5,    # Egypt
+  4,    # Romania
+  NA,   # Taiwan (Wikipedia gives a range of 1–4)
+  3,    # Lithuania
+  3,    # Mexico
+  3,    # New Zealand
+  3,    # South Korea
+  3,    # Tunisia
+  3,    # Turkey
+  2,    # Algeria
+  2,    # Azerbaijan
+  2,    # Chile
+  2,    # Colombia
+  2,    # Cyprus
+  2,    # East Timor
+  2,    # Iran
+  2,    # Greece
+  2,    # Guatemala
+  2,    # Liberia
+  2,    # Luxembourg
+  2,    # Pakistan
+  2,    # Portugal
+  2,    # Saint Lucia
+  2,    # Venezuela
+  1,    # Bangladesh
+  1,    # Brazil
+  1,    # Bulgaria
+  1,    # Costa Rica
+  1,    # Democratic Republic of the Congo
+  1,    # Ethiopia
+  1,    # Faroe Islands
+  1,    # Ghana
+  1,    # Hong Kong
+  1,    # Iceland
+  1,    # Iraq
+  1,    # Jordan
+  1,    # Kenya
+  1,    # Latvia
+  1,    # Lebanon
+  1,    # North Macedonia
+  1,    # Morocco
+  1,    # Myanmar
+  1,    # Nigeria
+  1,    # Palestine
+  1,    # Peru
+  1,    # Philippines
+  1,    # Saudi Arabia
+  1,    # Tanzania
+  1,    # Tibet
+  1,    # Trinidad and Tobago
+  1,    # Vietnam
+  1,    # Yemen
+  1,    # Yugoslavia
+  1     # Zimbabwe
+)
+)
+
+
+data_clean <- na.omit(data)
+
+lm_fit <- lm(nobel_prizes ~ secondary_education, data = data_clean)
+
+summary(lm_fit)
+plot(
+  data_clean$secondary_education,
+  data_clean$nobel_prizes,
+  xlab = "Percent of Population With at Least Some Secondary Education",
+  ylab = "Nobel Prizes"
+)
+
+abline(lm_fit)
+
+plot(data_clean$secondary_education,
+     residuals(lm_fit),
+     xlab = "Percent of Population With at Least Some Secondary Education",
+     ylab = "Residuals",
+     main = "Residuals vs Percentage",
+     pch = 19)
+
+abline(h = 0)
+
+qqnorm(residuals(lm_fit))
+qqline(residuals(lm_fit))
+
+```
+
+# Introduction
+
+Nobel Prizes are awarded in accordance with the principle of "for the greatest benefit to humankind". The six categories are physics, chemistry, medicine, literature, peace, and economic science. This analysis was done to determine whether there was a linear relationship between the percentage of the population with at least some secondary education in that country, and the number of Nobel laureates in that country. 
+
+The primary motivation is to inspire further research into what aspects of a country's education system causes high scientific/civil achievement. This paper is meant to see if education level and Nobel prizes won per country are correlated. If they aren't, that would indicate that there's other elements involved (such as talent or individual strengths) that produces Nobel laureates.
+
+A regression line was fitted, and a slope of .529 was found. The p-value of .0328 indicates that, using a 5% significance level and a two-tailed test, we have enough evidence to conclude that the slope is different from 0. This is important, because it shows that there is a linear relationship between the two variables.
+ 
+
+@sec-data introduces the data used in this analysis. @sec-methods describes the statistical model. @sec-results presents the results of the analysis, and @sec-discussion discusses the findings.
+
+# Data {#sec-data}
+
+The predictor variable data comes from the official Human Development Report from the United Nations from 2016 [@undp2016]. The outcome variable comes from the official Wikipedia list of Nobel Laureates per Country [@wikipedia_nobel_country]. The outcome variable is the number of Nobel Prize winners from a certain country. The predictor variable is a percentage, and it corresponds to the population in that country with at least some secondary education. This comes from surveys given to people aged 25 or older. Since there were some countries in the Nobel Prize data but missing in the data set, those countries were erased, instead of getting the data from an additional data source (to keep variables consistent). There are obvious limitations in using surveys-people could lie or data could be incomplete, 
+
+# Methods {#sec-methods}
+
+I adopted the simple linear regression model
+
+$$
+Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i,
+$$
+
+where $Y_i$ represents the response variable (Number of Nobel Prize Winners), and $X_i$ represents the predictor variable (Percent of Population with at Least Some Secondary Education).
+
+In this model, $\beta_0$ doesn't mean anything, since it represents the expected number of Nobel prize winners from a country with no percent of the population having some secondary education. $\beta_1$ represents the expected change in the number of Nobel Prize winners associated with an increase of one percentage point of the population having some secondary education. $\varepsilon_i$ represents elements that cause the count to differ from the expected value (errors).
+
+I implemented this analysis using the R programming language [@R_language]. Specifically, I used the lm() function in R.
+
+The assumptions of this model include normally distributed and errors, which we will show to be true later. Potential weaknesses of this approach might be that the variance doesn't appear to be constant-the higher the percentage of individuals with at least some secondary education, the more spread out the number of Nobel Prize winners. 
+
+ 
+# Results {#sec-results}
+
+The estimated regression model is
+
+$$
+\widehat{Y}
+=
+`r round(coef(lm_fit)[1], 3)`
++
+`r round(coef(lm_fit)[2], 3)`X.
+$$
+
+The estimated slope parameter is $b_1 =$ `r round(coef(lm_fit)[2], 3)`.
+
+In other words, for each additional increase in the percent of the population with at least some secondary education, the number of Nobel prize winners in that country changes by approximately `r round(coef(lm_fit)[2], 3)` winners, on average.
+
+The estimated intercept is `r round(coef(lm_fit)[1], 3)`.
+
+We will do no confidence intervals or hypothesis testing, since they would not be reliable due to the non-constant variance shown by the residuals. 
+
+@fig-suicide-residual shows the residuals from the fitted regression model. The points seem to have a funnel shape near the right, indicating non equal variance. The data does seem to be normally distributed, as shown in Figure 3 below.
+
+
+
+```{r}
+#| label: fig-suicide-residual
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-cap: "Residuals from the simple linear regression model plotted"
+
+plot(data_clean$secondary_education,
+     residuals(lm_fit),
+     xlab = "Percent of Population With at Least Some Secondary Education",
+     ylab = "Residuals",
+     main = "Residuals vs Percentage",
+     pch = 19)
+
+abline(h = 0)
+```
+
+```{r}
+#| label: fig-suicide-scatter
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-cap: "Percent of population with some secondary education vs. Nobel Prize winners in that country with fitted linear regression line."
+
+par(mar = c(8, 4, 4, 2))
+
+plot(
+  data_clean$secondary_education,
+  data_clean$nobel_prizes,
+  xlab = "Percent of Population With at Least Some Secondary Education",
+  ylab = "Nobel Prizes"
+)
+abline(lm_fit)
+```
+```{r}
+#| label: Q
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-cap: "QQ Norm Plot."
+
+par(mar = c(8, 4, 4, 2))
+
+
+qqnorm(residuals(lm_fit))
+qqline(residuals(lm_fit))
+```
+ 
+
+# Discussion {#sec-discussion}
+This paper attempted to see if there was a linear relationship between Nobel prize winners per country and the percentage of people with at least some secondary education in that country. Based on our methods used, there seems to be a positive linear relationship. There is a slight upward slope, but a p-test can't be done due to non-constant variance of the errors. There are some weaknesses in this study, including the variance of the errors and the fact that the surveys done probably aren't 100% accurate.Future work might be better handled by a more accurate predictor variable and more data.
+ 
+ 
+
+ 
