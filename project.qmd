@@ -3,31 +3,10 @@ title: "The Relationship Between Secondary Education and Nobel Laureates Across 
 author: "Marlon Trejo"
 date: today
 date-format: long
-abstract: "We consider whether a country's percentage of the population with at least some secondary schooling has any association on the number of nobel laureates that country's had. The regression line shows a slight upward trend, indicating that, on average, there is a positive correlation. Given the p-value, we can say we have enough evidence at the 5% significance level that there is a linear association between these two variables."
+abstract: "We consider whether a country's percentage of the population with at least some secondary schooling has any association on the number of nobel laureates that country's had. The regression line shows a slight upward trend, indicating that, on average, there is a positive correlation."
 format: pdf
 number-sections: true
 bibliography: references.bib
-
-
-references:
-  - id: cdc2026
-    type: webpage
-    author:
-      - literal: Centers for Disease Control and Prevention
-    title: "Fatal Injury Reports, National and Regional, 2024"
-    container-title: "WISQARS"
-    issued:
-      - year: 2026
-    URL: "https://wisqars.cdc.gov/"
-
-  - id: R_language
-    type: software
-    author:
-      - literal: R Core Team
-    title: "R: A Language and Environment for Statistical Computing"
-    publisher: "R Foundation for Statistical Computing"
-    publisher-place: "Vienna, Austria"
-    URL: "https://www.R-project.org/"
 ---
 
 ```{r}
@@ -329,14 +308,14 @@ Nobel Prizes are awarded in accordance with the principle of "for the greatest b
 
 The primary motivation is to inspire further research into what aspects of a country's education system causes high scientific/civil achievement. This paper is meant to see if education level and Nobel prizes won per country are correlated. If they aren't, that would indicate that there's other elements involved (such as talent or individual strengths) that produces Nobel laureates.
 
-A regression line was fitted, and a slope of .529 was found. The p-value of .0328 indicates that, using a 5% significance level and a two-tailed test, we have enough evidence to conclude that the slope is different from 0. This is important, because it shows that there is a linear relationship between the two variables.
+A regression line was fitted, and a slope of .529 was found. A p-test can't be conducted due to non-constant variance of the errors.
  
 
 @sec-data introduces the data used in this analysis. @sec-methods describes the statistical model. @sec-results presents the results of the analysis, and @sec-discussion discusses the findings.
 
 # Data {#sec-data}
 
-The predictor variable data comes from the official Human Development Report from the United Nations from 2016 [@undp2016]. The outcome variable comes from the official Wikipedia list of Nobel Laureates per Country [@wikipedia_nobel_country]. The outcome variable is the number of Nobel Prize winners from a certain country. The predictor variable is a percentage, and it corresponds to the population in that country with at least some secondary education. This comes from surveys given to people aged 25 or older. Since there were some countries in the Nobel Prize data but missing in the data set, those countries were erased, instead of getting the data from an additional data source (to keep variables consistent). There are obvious limitations in using surveys-people could lie or data could be incomplete, 
+The predictor variable data comes from the official Human Development Report from the United Nations from 2016 [@undp2016]. The outcome variable comes from the official Wikipedia list of Nobel Laureates per Country [@wikipedia_nobel_country]. The outcome variable is the number of Nobel Prize winners from a certain country. The predictor variable is a percentage, and it corresponds to the population in that country with at least some secondary education. This comes from surveys given to people aged 25 or older. Since there were some countries in the Nobel Prize data but missing in the data set, those countries were erased, instead of getting the data from an additional data source (to keep variables consistent). There are obvious limitations in using surveys-people could lie, or data could be incomplete.
 
 # Methods {#sec-methods}
 
@@ -352,7 +331,7 @@ In this model, $\beta_0$ doesn't mean anything, since it represents the expected
 
 I implemented this analysis using the R programming language [@R_language]. Specifically, I used the lm() function in R.
 
-The assumptions of this model include normally distributed and errors, which we will show to be true later. Potential weaknesses of this approach might be that the variance doesn't appear to be constant-the higher the percentage of individuals with at least some secondary education, the more spread out the number of Nobel Prize winners. 
+The assumptions of this model include normally distributed and errors, which we will show to be true later. Potential weaknesses of this approach might be that the variance doesn't appear to be constant-the higher the percentage of individuals with at least some secondary education, the more spread out the number of Nobel Prize winners. Also, the United States is an obvious outlier.
 
  
 # Results {#sec-results}
@@ -429,7 +408,7 @@ qqline(residuals(lm_fit))
  
 
 # Discussion {#sec-discussion}
-This paper attempted to see if there was a linear relationship between Nobel prize winners per country and the percentage of people with at least some secondary education in that country. Based on our methods used, there seems to be a positive linear relationship. There is a slight upward slope, but a p-test can't be done due to non-constant variance of the errors. There are some weaknesses in this study, including the variance of the errors and the fact that the surveys done probably aren't 100% accurate.Future work might be better handled by a more accurate predictor variable and more data.
+This paper attempted to see if there was a linear relationship between Nobel prize winners per country and the percentage of people with at least some secondary education in that country. Based on our methods used, there seems to be a positive linear relationship. There is a slight upward slope, but a p-test can't be done due to non-constant variance of the errors. There are some weaknesses in this study, including the variance of the errors and the fact that the surveys done probably aren't 100% accurate. Future work might be better handled by a more accurate predictor variable and more data.
  
  
 
